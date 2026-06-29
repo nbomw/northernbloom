@@ -8,7 +8,9 @@
  * created here are visible to both the website and the server's sync.
  */
 
-const sql = require('../../lib/neon');
+const sql = require
+
+export const runtime = 'edge';('../../lib/neon');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });

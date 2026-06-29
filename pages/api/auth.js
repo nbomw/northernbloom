@@ -10,7 +10,9 @@
  * For now this remains direct DB for backward compatibility.
  */
 
-const { login } = require('../../lib/auth');
+const { login } = require
+
+export const runtime = 'edge';('../../lib/auth');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });

@@ -9,7 +9,9 @@
  * No need to proxy through the server on Cloudflare.
  */
 
-const sql = require('../../lib/neon');
+const sql = require
+
+export const runtime = 'edge';('../../lib/neon');
 
 export default async function handler(req, res) {
   try {

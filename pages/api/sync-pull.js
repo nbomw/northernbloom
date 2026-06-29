@@ -7,7 +7,9 @@
  * The Express SaaS server also queries the same database for sync.
  */
 
-const sql = require('../../lib/neon');
+const sql = require
+
+export const runtime = 'edge';('../../lib/neon');
 
 export default async function handler(req, res) {
   const since = req.query.since;
