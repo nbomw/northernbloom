@@ -12,7 +12,7 @@ export default function StaffProfile() {
 
   useEffect(() => {
     if (!name) return;
-    fetch('/api/books-catalog').then(r => r.json()).then(d => {
+    fetch('/api/book-catalog').then(r => r.json()).then(d => {
       const found = d.staff.find(s => s.name.toLowerCase() === name.replace(/-/g, ' '));
       if (found) setProfile(found);
     }).catch(() => {});
@@ -30,7 +30,7 @@ export default function StaffProfile() {
 
   if (!profile) return <div className="min-h-screen bg-[#0D0D0B] flex items-center justify-center text-white"><div className="animate-spin w-8 h-8 border-2 border-[#C9973A] border-t-transparent rounded-full" /></div>;
 
-  if (session?.role === 'staff') return <StaffDashboard session={session} />;
+  if (session?.role === 'staff') return <StaffDashboard session={session} profile={profile} />;
 
   return (
     <div className="min-h-screen bg-[#0D0D0B] p-6 text-white">
@@ -64,24 +64,32 @@ export default function StaffProfile() {
   );
 }
 
-function StaffDashboard({ session }) {
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    fetch('/api/staff/dashboard', { headers: { Authorization: 'Bearer ' + session.token } })
-      .then(r => r.json()).then(setData).catch(() => {});
-  }, [session]);
+function StaffDashboard({ session, profile: p }) {
   return (
     <div className="min-h-screen bg-[#0D0D0B] p-6 text-white">
       <div className="max-w-md mx-auto">
         <h1 className="text-2xl font-bold mb-2">Welcome, {session.name}</h1>
-        {!data ? <div className="animate-spin w-8 h-8 border-2 border-[#C9973A] border-t-transparent rounded-full mx-auto mt-8" /> : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#1E1A17] rounded-xl p-4"><p className="text-[#888] text-xs">Appointments</p><p className="text-2xl font-bold mt-1">{data.monthStats?.count || 0}</p></div>
-              <div className="bg-[#1E1A17] rounded-xl p-4 border border-[#C9973A33]"><p className="text-[#888] text-xs">Revenue MTD</p><p className="text-2xl font-bold mt-1 text-[#C9973A]">₹{Number(data.monthStats?.revenue || 0).toLocaleString('en-IN')}</p></div>
+        <p className="text-[#C9973A] text-sm uppercase tracking-wider mb-6">{p?.role || 'Stylist'} • {p?.experience_years ? `${p.experience_years} yrs exp` : 'New team member'}</p>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-[#1E1A17] rounded-xl p-4">
+              <p className="text-[#888] text-xs">Rating</p>
+              <p className="text-2xl font-bold mt-1">{p?.avg_rating ? `★ ${Number(p.avg_rating).toFixed(1)}` : '—'}</p>
+            </div>
+            <div className="bg-[#1E1A17] rounded-xl p-4 border border-[#C9973A33]">
+              <p className="text-[#888] text-xs">Reviews</p>
+              <p className="text-2xl font-bold mt-1 text-[#C9973A]">{p?.review_count || 0}</p>
             </div>
           </div>
-        )}
+          {p?.specialities?.length > 0 && (
+            <div className="bg-[#1E1A17] rounded-xl p-4">
+              <p className="text-[#888] text-xs mb-2">Specialities</p>
+              <div className="flex gap-2 flex-wrap">
+                {p.specialities.map(s => <span key={s} className="px-3 py-1 bg-[#2D2520] border border-[#C9973A33] rounded-full text-xs text-[#C9973A]">{s}</span>)}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

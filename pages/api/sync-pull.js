@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       SELECT b.id, b.reference, b.customer_name, b.customer_phone,
              b.service_id, bs.name as service_name,
              b.staff_id, bst.name as staff_name,
-             b.datetime, b.duration_mins, b.notes, b.status, b.created_at
+             b.datetime as appointment_date, b.duration_mins, b.notes, b.status, b.created_at
       FROM bookings b
       LEFT JOIN booking_services bs ON b.service_id = bs.service_id
       LEFT JOIN booking_staff bst ON b.staff_id = bst.staff_id
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       ORDER BY b.created_at ASC
       LIMIT 100
     `;
-    res.json({ bookings });
+    res.json({ bookings, pulledAt: new Date().toISOString() });
   } catch (e) {
     console.error('[sync-pull]', e.message);
     res.status(500).json({ error: 'Sync unavailable', bookings: [] });
