@@ -11,8 +11,6 @@
 
 const sql = require('../../lib/neon');
 
-export const runtime = 'edge';
-
 export default async function handler(req, res) {
   try {
     const [services, staff] = await Promise.all([
