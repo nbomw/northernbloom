@@ -22,9 +22,14 @@ export async function onRequest(context) {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: 'Sync unavailable', bookings: [] }), {
+    // On failure, echo back the original `since` as pulledAt instead of
+    // omitting it. The desktop falls back to new Date().toISOString() when
+    // pulledAt is missing — that would silently skip any bookings created
+    // during this outage. Returning `since` makes the next poll retry the
+    // same window once the connection recovers.
+    return new Response(JSON.stringify({ error: 'Sync unavailable', bookings: [], pulledAt: since }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   }
 }

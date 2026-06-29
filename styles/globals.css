@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind is NOT installed in this project (no tailwind.config.js, no
+   postcss.config.js, "tailwindcss" missing from package.json). The
+   @tailwind directives that used to be here would either fail the Next.js
+   build or be silently dropped, leaving every Tailwind utility class
+   elsewhere in the app unstyled. Removed in favor of the hand-written
+   utility classes below, which mirror the small set of utilities the
+   PIN-pad / dashboard / legal pages actually use. */
 
 :root {
   --gold: #C9973A;
@@ -12,6 +16,65 @@
   --text-muted: #888;
   --border: #2a2a2a;
 }
+
+/* Light theme — applied when <html> does NOT have the .dark class.
+   Dark (the brand default) is the .dark variant below; toggled via
+   nb-theme in localStorage, set in _app.js. */
+html:not(.dark) {
+  --bg: #FBF7F1;
+  --card: #FFFFFF;
+  --text: #1A1714;
+  --text-dim: #4A4540;
+  --text-muted: #8A8278;
+  --border: #E8DCC8;
+}
+html:not(.dark) body {
+  background: var(--bg);
+  color: var(--text);
+}
+html:not(.dark) .input {
+  background: #FFFFFF;
+  border-color: #E0D3B8;
+  color: var(--text);
+}
+html:not(.dark) .input::placeholder { color: #B5AB9A; }
+html:not(.dark) .svc-card,
+html:not(.dark) .staff-card,
+html:not(.dark) .cat-btn,
+html:not(.dark) .stat-card,
+html:not(.dark) .staff-list-link,
+html:not(.dark) .speciality-chip,
+html:not(.dark) .review-card,
+html:not(.dark) .slot,
+html:not(.dark) .pin-key,
+html:not(.dark) .pin-key-sm {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+html:not(.dark) .slot { color: var(--text-muted); }
+html:not(.dark) #step-indicator { background: var(--bg); border-bottom-color: var(--border); }
+html:not(.dark) .step-dot { background-color: #FFFFFF; border-color: #DDD0B8; color: var(--text-muted); }
+
+.theme-toggle {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  right: 12px;
+  z-index: 50;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -238,12 +301,97 @@ body {
 .cat-btn-icon { font-size: 1.3rem; width: 38px; text-align: center; flex-shrink: 0; }
 .cat-btn-text { flex: 1; }
 .cat-btn-name { font-weight: 600; font-size: 0.88rem; }
+.cat-btn-count { font-size: 0.72rem; color: #888; margin-top: 2px; }
 .cat-btn-arrow { transition: transform 0.25s ease; color: #888; font-size: 0.7rem; flex-shrink: 0; }
 .cat-btn.open .cat-btn-arrow { transform: rotate(180deg); }
 .cat-menu { display: none; padding: 4px 0 12px 48px; }
 .cat-menu.open { display: block; }
 
+/* Page wrapper + site header (homepage) */
+.page { max-width: 600px; margin: 0 auto; }
+.site-header { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #2D2520; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo-text { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+
+/* Service card subparts (search-result variant) */
+.svc-card-info { flex: 1; }
+.svc-card-icon-sm { width: 30px; height: 30px; border-radius: 6px; background: rgba(201,151,58,0.1); color: #C9973A; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; }
+
+/* Success screen (booking confirmed) */
+.success-screen { text-align: center; padding: 60px 24px 40px; max-width: 420px; margin: 0 auto; }
+.success-screen h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
+.success-screen > p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+.success-screen .review-card { text-align: left; margin-bottom: 24px; }
+.success-screen .review-card > div { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.88rem; }
+.success-screen .review-card > div span:first-child { color: var(--text-muted); }
+.success-screen .review-card > div span:last-child { font-weight: 600; }
+
+/* Toast (inline error/status banner, not a floating overlay) */
+.toast { background: rgba(255,77,77,0.1); border: 1px solid rgba(255,77,77,0.25); color: #FF8A8A; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; margin-top: 12px; text-align: center; }
+.toast.show { display: block; }
+
 /* Homepage */
 .home-hero { padding: 60px 16px 32px; text-align: center; max-width: 600px; margin: 0 auto; }
 .home-hero-title { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 12px; }
 .home-hero-sub { font-size: 1rem; color: #C9973A; letter-spacing: 0.05em; max-width: 280px; margin: 0 auto; line-height: 1.6; }
+
+/* ── Shared utility layer (replaces unused Tailwind classes) ──────────
+   Used by: login.js, owner/index.js, staff/[name].js, terms.js, privacy.js */
+
+.screen { min-height: 100vh; background: var(--bg); color: #fff; padding: 24px; box-sizing: border-box; }
+.screen-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.container-sm { max-width: 28rem; margin: 0 auto; width: 100%; }
+.container-md { max-width: 42rem; margin: 0 auto; width: 100%; }
+
+.brand-mark { width: 80px; height: 80px; border-radius: 16px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: #2D2520; box-shadow: 0 8px 24px rgba(201,151,58,0.25); margin-bottom: 24px; }
+.brand-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+.brand-sub { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 32px; }
+
+.pin-dots { display: flex; gap: 12px; margin-bottom: 24px; }
+.pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #333; transition: all 0.15s; }
+.pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+.pin-dot-sm { width: 12px; height: 12px; border: 1px solid #333; border-radius: 50%; transition: all 0.15s; }
+.pin-dot-sm.filled { background: var(--gold); border-color: var(--gold); }
+
+.pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 240px; margin: 0 auto; }
+.pin-pad-sm { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 200px; margin: 0 auto; }
+.pin-key { width: 64px; height: 64px; border-radius: 12px; background: var(--card); color: #fff; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: background 0.1s; }
+.pin-key:active { background: #333; }
+.pin-key-sm { width: 56px; height: 56px; border-radius: 12px; background: var(--card); color: #fff; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: background 0.1s; }
+.pin-key-sm:active { background: #333; }
+
+.error-text { color: #ff7373; font-size: 0.875rem; margin-top: 16px; }
+.back-link { color: var(--text-muted); font-size: 0.75rem; margin-top: 32px; text-decoration: underline; display: inline-block; }
+.legal-link { color: var(--gold); font-size: 0.875rem; text-decoration: underline; margin-bottom: 16px; display: inline-block; }
+
+.legal-h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; }
+.legal-section { margin-bottom: 24px; }
+.legal-section h2 { color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 1rem; }
+.legal-section p { color: var(--text-dim); font-size: 0.875rem; line-height: 1.7; }
+
+.dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+.dash-title { font-size: 1.5rem; font-weight: 700; }
+.dash-signout { color: var(--text-muted); font-size: 0.875rem; text-decoration: underline; background: none; border: none; cursor: pointer; }
+.dash-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+@media (min-width: 768px) { .dash-stats { grid-template-columns: repeat(4, 1fr); } }
+.stat-card { background: var(--card); border-radius: 12px; padding: 16px; }
+.stat-card.accent { border: 1px solid var(--border); }
+.stat-label { color: var(--text-muted); font-size: 0.75rem; }
+.stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+.stat-value.accent { color: var(--gold); }
+
+.staff-list-link { display: flex; align-items: center; gap: 16px; background: var(--card); border-radius: 12px; padding: 16px; text-decoration: none; color: inherit; transition: border-color 0.2s; border: 1px solid transparent; margin-bottom: 8px; }
+.staff-list-link:hover { border-color: var(--border); }
+.staff-list-name { font-weight: 500; }
+.staff-list-role { color: var(--text-muted); font-size: 0.75rem; }
+.staff-list-rating { color: var(--gold); font-size: 0.875rem; margin-left: auto; }
+
+.avatar-circle { border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #2D2520; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+.profile-name { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+.profile-role { color: var(--gold); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+.profile-rating { color: var(--gold); margin-top: 8px; }
+.profile-specialities { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+.speciality-chip { padding: 4px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; font-size: 0.75rem; color: var(--gold); }
+.profile-divider { margin-top: 32px; border-top: 1px solid #2a2a2a; padding-top: 32px; }

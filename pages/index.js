@@ -3,6 +3,7 @@ import Head from 'next/head';
 
 const STEPS = ['Service', 'Staff', 'Time', 'Details', 'Confirm'];
 const CI = { 'Ladies Hair':'💇‍♀️','Gents':'👨','Cleanup':'✨','Facial':'🌸','D-Tan':'☀️','Waxing':'🪒','Threading':'🧵','Nails':'💅','Massage':'💆','Mani+Pedi':'🦶','Bridal':'💍' };
+function ci(category) { return CI[category] || '✦'; }
 
 export default function Home() {
   const [services, setServices] = useState([]);
@@ -25,6 +26,44 @@ export default function Home() {
     setBooking(b => ({ ...b, date: d.toISOString().split('T')[0] }));
   }, []);
 
+  // Submit the booking exactly once, when the user reaches the Confirm step.
+  useEffect(() => {
+    if (step !== 4 || done || msg) return;
+    let cancelled = false;
+
+    async function submit() {
+      try {
+        const datetime = booking.date && booking.time
+          ? new Date(`${booking.date}T${booking.time}:00`).toISOString()
+          : null;
+
+        const res = await fetch('/api/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: booking.name,
+            customerPhone: booking.phone,
+            // service_id is the FK column the catalog API returns for services;
+            // id is the FK column (aliased from staff_id) it returns for staff.
+            serviceId: booking.service?.service_id,
+            staffId: booking.staff?.id ?? null,
+            datetime,
+            duration_mins: booking.service?.duration_mins || 30,
+          })
+        });
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.success) setDone(true);
+        else setMsg(data.error || 'Booking failed');
+      } catch (e) {
+        if (!cancelled) setMsg('Network error');
+      }
+    }
+
+    submit();
+    return () => { cancelled = true; };
+  }, [step]);
+
   const categories = [...new Set(services.map(s => s.category))].sort();
   const today = new Date().toISOString().split('T')[0];
 
@@ -44,7 +83,7 @@ export default function Home() {
       case 1: return renderStaffStep();
       case 2: return renderTime();
       case 3: return renderDetails();
-      case 4: return renderConfirm();
+      case 4: return renderConfirmStatus();
     }
   }
 
@@ -151,27 +190,21 @@ export default function Home() {
     );
   }
 
-  async function renderConfirm() {
-    try {
-      const res = await fetch('/api/book', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerName: booking.name,
-          customerPhone: booking.phone,
-          serviceId: booking.service?.id,
-          staffId: booking.staff?.id,
-          date: booking.date,
-          time: booking.time,
-          duration_mins: booking.service?.duration || 30,
-        })
-      });
-      const data = await res.json();
-      if (data.success) setDone(true);
-      else setMsg(data.error || 'Booking failed');
-    } catch(e) {
-      setMsg('Network error');
+  function renderConfirmStatus() {
+    if (msg) {
+      return (
+        <div className="empty">
+          <p className="empty-text">{msg}</p>
+          <button className="btn btn-outline" style={{marginTop:16}} onClick={() => { setMsg(''); setStep(3); }}>Back to Details</button>
+        </div>
+      );
     }
+    return (
+      <div className="loading-screen">
+        <div className="spinner" />
+        <p className="empty-text">Confirming your appointment…</p>
+      </div>
+    );
   }
 
   if (done) {
