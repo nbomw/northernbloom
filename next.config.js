@@ -1,4 +1,10 @@
+const { initOpenNextCloudflareForDev } = require("@opennextjs/cloudflare");
+
 /** @type {import('next').NextConfig} */
-module.exports = {
-  // Built with @cloudflare/next-on-pages — adapter handles the build output
-};
+const nextConfig = {};
+
+if (process.env.NODE_ENV === "development") {
+  initOpenNextCloudflareForDev(nextConfig);
+}
+
+module.exports = nextConfig;
