@@ -9,6 +9,8 @@
 
 const sql = require('../../lib/neon');
 
+export const runtime = 'edge';
+
 export default async function handler(req, res) {
   const since = req.query.since;
   if (!since) return res.status(400).json({ error: 'missing since' });
