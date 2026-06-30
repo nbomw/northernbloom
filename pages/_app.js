@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
 export default function App({ Component, pageProps }) {
@@ -6,7 +7,6 @@ export default function App({ Component, pageProps }) {
 
   useEffect(() => {
     const theme = localStorage.getItem('nb-theme');
-    // Brand defaults to dark when no preference is stored yet.
     const dark = theme !== 'light';
     document.documentElement.classList.toggle('dark', dark);
     setIsDark(dark);
@@ -21,11 +21,15 @@ export default function App({ Component, pageProps }) {
 
   return (
     <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </Head>
       <button
         className="theme-toggle"
         onClick={toggleTheme}
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       >
         {isDark ? '☀' : '☾'}
       </button>

@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects
+# Dynamic staff profiles: /staff/name → /staff/[name].html
+/staff/* /staff/[name].html 200
